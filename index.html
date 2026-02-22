@@ -1,10 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Website Pertamaku</title>
+<meta charset="UTF-8">
+<title>MindDash - Reaction Game</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: linear-gradient(120deg, #1f4037, #99f2c8);
+  color: white;
+}
+
+h1 {
+  margin-top: 30px;
+}
+
+#gameArea {
+  width: 500px;
+  height: 500px;
+  margin: 20px auto;
+  position: relative;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+}
+
+.target {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: red;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+.stats {
+  font-size: 18px;
+}
+</style>
 </head>
 <body>
-  <h1>Halo Dunia 👋</h1>
-  <p>Ini website dari GitHub Pages</p>
+
+<h1>🧠 MindDash</h1>
+<p>Klik target secepat mungkin!</p>
+
+<div class="stats">
+  Score: <span id="score">0</span> |
+  Time: <span id="time">30</span>s |
+  Level: <span id="level">1</span>
+</div>
+
+<div id="gameArea"></div>
+
+<button onclick="startGame()">Mulai Game</button>
+
+<h2 id="result" class="hidden"></h2>
+
+<script>
+let score = 0;
+let time = 30;
+let level = 1;
+let gameInterval;
+let timerInterval;
+let spawnSpeed = 1000;
+
+function startGame() {
+  score = 0;
+  time = 30;
+  level = 1;
+  spawnSpeed = 1000;
+  document.getElementById("result").classList.add("hidden");
+  updateUI();
+
+  clearInterval(gameInterval);
+  clearInterval(timerInterval);
+
+  gameInterval = setInterval(spawnTarget, spawnSpeed);
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateUI() {
+  document.getElementById("score").innerText = score;
+  document.getElementById("time").innerText = time;
+  document.getElementById("level").innerText = level;
+}
+
+function updateTimer() {
+  time--;
+  updateUI();
+
+  if (time <= 0) {
+    endGame();
+  }
+}
+
+function spawnTarget() {
+  const area = document.getElementById("gameArea");
+
+  const target = document.createElement("div");
+  target.classList.add("target");
+
+  let x = Math.random() * 440;
+  let y = Math.random() * 440;
+
+  target.style.left = x + "px";
+  target.style.top = y + "px";
+
+  target.onclick = function() {
+    score += 10;
+    target.remove();
+
+    if (score % 50 === 0) {
+      level++;
+      spawnSpeed -= 150;
+      clearInterval(gameInterval);
+      gameInterval = setInterval(spawnTarget, spawnSpeed);
+    }
+
+    updateUI();
+  };
+
+  area.appendChild(target);
+
+  setTimeout(() => {
+    if (area.contains(target)) {
+      target.remove();
+    }
+  }, spawnSpeed - 100);
+}
+
+function endGame() {
+  clearInterval(gameInterval);
+  clearInterval(timerInterval);
+  document.getElementById("result").innerText =
+    "Game Over! Skor kamu: " + score;
+  document.getElementById("result").classList.remove("hidden");
+}
+</script>
+
 </body>
 </html>
